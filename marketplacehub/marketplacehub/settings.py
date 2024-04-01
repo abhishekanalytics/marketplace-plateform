@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'Tradecore',
+    'rest_framework.authtoken',
+    # 'django.contrib.gis',
 ]
 
 MIDDLEWARE = [
@@ -78,15 +80,40 @@ WSGI_APPLICATION = 'marketplacehub.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         # 'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+# import pymysql
+# pymysql.install_as_MySQLdb()
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'data.db',
+#         'USER': 'root',
+#         'PASSWORD': 'abhishek@123',
+#         'HOST':'localhost',
+#         'PORT':'3306',
+#     }
+# }
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis', 
+        'NAME': 'django_database',
+        'USER': 'postgres',
+        'PASSWORD': 'abhishek@123',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -132,10 +159,41 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
  
 
 
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND') 
-EMAIL_HOST = os.getenv('EMAIL_HOST')  
-EMAIL_PORT = os.getenv('EMAIL_PORT') 
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')  
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL') 
+# EMAIL_BACKEND = os.getenv('EMAIL_BACKEND') 
+# EMAIL_HOST = os.getenv('EMAIL_HOST')  
+# EMAIL_PORT = os.getenv('EMAIL_PORT') 
+# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')  
+# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
+# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+# DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL') 
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
+EMAIL_HOST = 'smtp.gmail.com'  
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True  
+EMAIL_HOST_USER = 'abhishekanalytics2023@gmail.com'  
+EMAIL_HOST_PASSWORD = 'zhut tpen sxmn rzzz'
+DEFAULT_FROM_EMAIL = 'abhishekanalytics2023@gmail.com'
+
+BASE_URL = 'http://127.0.0.1:8000'
+AUTH_USER_MODEL = 'Tradecore.CustomUser'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+GDAL_LIBRARY_PATH = r'C:\Users\lenovo\OneDrive\Desktop\Marketplace_project\venv\Lib\site-packages\osgeo\gdal304.dll'
+GEOS_LIBRARY_PATH = r'C:\Users\lenovo\OneDrive\Desktop\Marketplace_project\venv\Lib\site-packages\osgeo\geos_c.dll'
+
+# GIS_COORDINATE_SYSTEM = 'WGS84'
+import os
+
+# Actual directory user files go to
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'mediafiles')
+
+# URL used to access the media
+MEDIA_URL = '/media/'
