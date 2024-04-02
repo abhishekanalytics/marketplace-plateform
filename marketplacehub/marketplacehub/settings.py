@@ -1,6 +1,6 @@
-# import os
-# from dotenv import load_dotenv
-# load_dotenv()
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 """
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'Tradecore',
     'rest_framework.authtoken',
-    # 'django.contrib.gis',
+    'django.contrib.gis',
 ]
 
 MIDDLEWARE = [
@@ -63,7 +63,7 @@ ROOT_URLCONF = 'marketplacehub.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'template'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -107,7 +107,7 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.postgresql',
         'ENGINE': 'django.contrib.gis.db.backends.postgis', 
-        'NAME': 'django_database',
+        'NAME': 'django_data',
         'USER': 'postgres',
         'PASSWORD': 'abhishek@123',
         'HOST': 'localhost',
@@ -154,27 +154,19 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
+# MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'mediafiles')
+# MEDIA_URL = '/media/'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
- 
 
-
-# EMAIL_BACKEND = os.getenv('EMAIL_BACKEND') 
-# EMAIL_HOST = os.getenv('EMAIL_HOST')  
-# EMAIL_PORT = os.getenv('EMAIL_PORT') 
-# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')  
-# EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
-# EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-# DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL') 
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  
-EMAIL_HOST = 'smtp.gmail.com'  
-EMAIL_PORT = 587  
-EMAIL_USE_TLS = True  
-EMAIL_HOST_USER = 'abhishekanalytics2023@gmail.com'  
-EMAIL_HOST_PASSWORD = 'zhut tpen sxmn rzzz'
-DEFAULT_FROM_EMAIL = 'abhishekanalytics2023@gmail.com'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND') 
+EMAIL_HOST = os.getenv('EMAIL_HOST')  
+EMAIL_PORT = os.getenv('EMAIL_PORT') 
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')  
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL') 
 
 BASE_URL = 'http://127.0.0.1:8000'
 AUTH_USER_MODEL = 'Tradecore.CustomUser'
@@ -189,11 +181,4 @@ REST_FRAMEWORK = {
 GDAL_LIBRARY_PATH = r'C:\Users\lenovo\OneDrive\Desktop\Marketplace_project\venv\Lib\site-packages\osgeo\gdal304.dll'
 GEOS_LIBRARY_PATH = r'C:\Users\lenovo\OneDrive\Desktop\Marketplace_project\venv\Lib\site-packages\osgeo\geos_c.dll'
 
-# GIS_COORDINATE_SYSTEM = 'WGS84'
-import os
-
-# Actual directory user files go to
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'mediafiles')
-
-# URL used to access the media
-MEDIA_URL = '/media/'
+GIS_COORDINATE_SYSTEM = 'WGS84'

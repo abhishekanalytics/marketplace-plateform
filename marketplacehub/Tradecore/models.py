@@ -1,17 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from .manager import CustomUserManager
-from django.contrib.gis.db import models
-
-
-
+from django.contrib.gis.db import models as gis_models
 
 class UserRole(models.TextChoices):
-    ADMIN = 'admin', 'Admin'
-    MANAGER = 'manager', 'Manager'
-    EMPLOYEE = 'employee', 'Employee'
+    SELLER = 'seller', 'Seller'
 
-class CustomUser(AbstractUser):  
+
+class CustomUser(AbstractUser):
     username=None
     email = models.EmailField(unique=True)
     verification_token = models.CharField(max_length=100, blank=True, null=True)
@@ -21,14 +17,13 @@ class CustomUser(AbstractUser):
     phone_no = models.CharField(max_length=15,unique=False)
     first_name = models.CharField(max_length=15, blank=True)
     last_name = models.CharField(max_length=15, blank=True)
-
+    role = models.CharField(max_length=20, choices=UserRole.choices, default=UserRole.SELLER)
 
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     objects = CustomUserManager()
-
 
 class Product(models.Model):
     title = models.CharField(max_length=100)
@@ -37,4 +32,5 @@ class Product(models.Model):
     quantity = models.IntegerField()
     category = models.CharField(max_length=100)
     image = models.ImageField(upload_to='product_images/', blank=True)
-    location = models.PointField(blank=True, null=True)
+    location = gis_models.PointField()
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='products',)
