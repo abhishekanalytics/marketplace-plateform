@@ -34,3 +34,13 @@ class Product(models.Model):
     image = models.ImageField(upload_to='product_images/', blank=True)
     location = gis_models.PointField()
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='products',)
+
+
+
+class Cart(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    items = models.ManyToManyField('CartItem')
+
+class CartItem(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)

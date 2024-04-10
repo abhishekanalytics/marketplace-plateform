@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (CustomUser,Product)
 from django.contrib.gis.geos import Point
-from .models import CustomUser, UserRole
+from .models import CustomUser, UserRole,CartItem
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -27,3 +27,11 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'title', 'description', 'price', 'quantity', 'location', 'category','user']
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
+    class Meta:
+        model = CartItem
+        fields = ['product', 'quantity']

@@ -12,9 +12,9 @@ from .models import Product
 from .serializers import ProductSerializer
 from django.contrib.gis.geos import Point
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DistanceFunc
-from django.contrib.gis.geos import Point
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -134,7 +134,6 @@ def product_detail(request, pk):
         product.delete()
         return Response({'message':'deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
-
 @api_view(['GET'])
 def product_nearby(request):
     if request.method == 'GET':
@@ -153,3 +152,41 @@ def product_nearby(request):
         nearby_products = Product.objects.filter(location__distance_lte=(user_location, Distance(km=radius)))
         serializer = ProductSerializer(nearby_products, many=True)
         return Response(serializer.data)
+
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Cart, CartItem
+from .serializers import CartItemSerializer
+
+@api_view(['POST'])
+def add_to_cart(request):
+    product_id = request.data.get('product_id')
+    quantity = request.data.get('quantity', 1)
+    
+    try:
+        product = Product.objects.get(pk=product_id)
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+        cart_item.quantity += int(quantity)
+        cart_item.save()
+        serializer = CartItemSerializer(cart_item)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Product.DoesNotExist:
+        return Response({"error": "Product does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['DELETE'])
+def remove_from_cart(request, item_id):
+    try:
+        cart_item = CartItem.objects.get(pk=item_id)
+        cart_item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except CartItem.DoesNotExist:
+        return Response({"error": "Item does not exist in cart"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def view_cart(request):
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    cart_items = CartItem.objects.filter(cart=cart)
+    serializer = CartItemSerializer(cart_items, many=True)
+    return Response(serializer.data)

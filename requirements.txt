@@ -1,0 +1,14 @@
+asgiref==3.8.1
+Django==5.0.4
+djangorestframework==3.15.1
+djangorestframework-simplejwt==5.3.1
+GDAL @ file:///C:/Users/lenovo/OneDrive/Desktop/Marketplace_project/GDAL-3.4.3-cp311-cp311-win_amd64.whl
+pillow==10.3.0
+psycopg==3.1.18
+psycopg2==2.9.9
+PyJWT==2.8.0
+python-dotenv==1.0.1
+rest-framework-simplejwt==0.0.2
+sqlparse==0.4.4
+typing_extensions==4.11.0
+tzdata==2024.1
