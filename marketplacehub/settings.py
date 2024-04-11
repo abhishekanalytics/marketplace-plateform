@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
+from datetime import timedelta
+from pathlib import Path
 
 
 """
@@ -15,7 +17,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'Tradecore',
     'rest_framework.authtoken',
     'django.contrib.gis',
+    'cart',
 ]
 
 MIDDLEWARE = [
@@ -107,7 +109,7 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.postgresql',
         'ENGINE': 'django.contrib.gis.db.backends.postgis', 
-        'NAME': 'django_data',
+        'NAME': 'data',
         'USER': 'postgres',
         'PASSWORD': 'abhishek@123',
         'HOST': 'localhost',
@@ -182,3 +184,16 @@ GDAL_LIBRARY_PATH = r'C:\Users\lenovo\OneDrive\Desktop\Marketplace_project\venv\
 GEOS_LIBRARY_PATH = r'C:\Users\lenovo\OneDrive\Desktop\Marketplace_project\venv\Lib\site-packages\osgeo\geos_c.dll'
 
 GIS_COORDINATE_SYSTEM = 'WGS84'
+
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=40),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+# for payments
+
+
+STRIPE_SECRET_KEY = 'sk_test_51P3vWeSC7FsuhxIZ9s3biPbPxTVltAhwiu35PWhfPtVRl7rfI2YFYffcUrl3TJaHnlZ5mRLhn5gcikS8L96YYanL00uWUYXog8'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51P3vWeSC7FsuhxIZvwxF9Lpr2LaRxf2pCIlbrk7UJT2NKGN0qmHXtb5FwJaGzZrpcI6JPcmtFR4XqxfJCUHqKsqS00cGv2N0qL'

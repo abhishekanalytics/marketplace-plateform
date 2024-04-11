@@ -3,6 +3,7 @@ from django.db import models
 from .manager import CustomUserManager
 from django.contrib.gis.db import models as gis_models
 
+
 class UserRole(models.TextChoices):
     SELLER = 'seller', 'Seller'
 
@@ -34,13 +35,12 @@ class Product(models.Model):
     image = models.ImageField(upload_to='product_images/', blank=True)
     location = gis_models.PointField()
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='products',)
-
-
-
-class Cart(models.Model):
-    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
-    items = models.ManyToManyField('CartItem')
-
-class CartItem(models.Model):
+    
+    
+    
+    
+class UserActivity(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    activity_type = models.CharField(max_length=10)  # "browse" or "purchase"
+    timestamp = models.DateTimeField(auto_now_add=True)

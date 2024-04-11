@@ -152,41 +152,23 @@ def product_nearby(request):
         nearby_products = Product.objects.filter(location__distance_lte=(user_location, Distance(km=radius)))
         serializer = ProductSerializer(nearby_products, many=True)
         return Response(serializer.data)
+    
+    
+    
+# views.py
 
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Cart, CartItem
-from .serializers import CartItemSerializer
-
-@api_view(['POST'])
-def add_to_cart(request):
-    product_id = request.data.get('product_id')
-    quantity = request.data.get('quantity', 1)
-    
-    try:
-        product = Product.objects.get(pk=product_id)
-        cart, created = Cart.objects.get_or_create(user=request.user)
-        cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-        cart_item.quantity += int(quantity)
-        cart_item.save()
-        serializer = CartItemSerializer(cart_item)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    except Product.DoesNotExist:
-        return Response({"error": "Product does not exist"}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['DELETE'])
-def remove_from_cart(request, item_id):
-    try:
-        cart_item = CartItem.objects.get(pk=item_id)
-        cart_item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    except CartItem.DoesNotExist:
-        return Response({"error": "Item does not exist in cart"}, status=status.HTTP_404_NOT_FOUND)
+from rest_framework import status
+# from .models import User
+from .utils import get_user_item_matrix, recommend_products
 
 @api_view(['GET'])
-def view_cart(request):
-    cart, _ = Cart.objects.get_or_create(user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
-    serializer = CartItemSerializer(cart_items, many=True)
-    return Response(serializer.data)
+def recommend_products_view(request):
+    if request.method == 'GET':
+        user = request.user
+        user_id = user.id
+        user_item_matrix = get_user_item_matrix()
+        recommended_product_ids = recommend_products(user_id, user_item_matrix)
+        recommended_products = Product.objects.filter(id__in=recommended_product_ids)
+        return Response({'recommended_products': recommended_products}, status=status.HTTP_200_OK)
