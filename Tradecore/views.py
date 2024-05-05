@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
@@ -8,20 +8,17 @@ from .models import CustomUser
 from .serializers import UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import generics
 from .models import Product
 from .serializers import ProductSerializer
-
-
+from django.contrib.gis.geos import Point
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import Distance
 from django.contrib.gis.db.models.functions import Distance as DistanceFunc
-from django.contrib.gis.geos import Point
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
-from django.db.models import Q
-# from .permissions import IsSeller
-
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsSeller
 
 
 @api_view(['POST'])
@@ -33,7 +30,7 @@ def register(request):
         user.is_active = False 
         user.save()
         subject = 'Activate Your Account'
-        message = f'Please click the link to verify your email: {settings.BASE_URL}/verify-email/{user.id}/'
+        message = f'Please click the link to verify your email: {settings.BASE_URL}/api/auth/verify-email/{user.id}/'
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -85,38 +82,25 @@ def profile(request):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['DELETE'])
 def delete_account(request):
     request.user.delete()
     return Response({'message': 'Account deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
 
-
 @api_view(['GET', 'POST'])
-# @permission_classes([IsSeller])
+@permission_classes([IsAuthenticated, IsSeller])
+
 def product_list(request):
     if request.method == 'GET':
         products = Product.objects.all()
         query_params = request.query_params
         title = query_params.get('title')
         category = query_params.get('category')
-        min_price = query_params.get('min_price')
-        max_price = query_params.get('max_price')
-
         if title:
             products = products.filter(title__icontains=title)
         if category:
             products = products.filter(category__iexact=category)
-        if min_price:
-            products = products.filter(price__gte=min_price)
-        if max_price:
-            products = products.filter(price__lte=max_price)
-
-        sort_by = query_params.get('sort_by', 'title')
-        if sort_by in ['title', 'price', 'quantity']:
-            products = products.order_by(sort_by)
-
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
@@ -127,8 +111,8 @@ def product_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@permission_classes([IsAuthenticated, IsSeller])
 @api_view(['GET', 'PUT', 'DELETE'])
-# @permission_classes([IsSeller])
 def product_detail(request, pk):
     try:
         product = Product.objects.get(pk=pk)
@@ -150,14 +134,41 @@ def product_detail(request, pk):
         product.delete()
         return Response({'message':'deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
 
-
 @api_view(['GET'])
 def product_nearby(request):
     if request.method == 'GET':
-        latitude = float(request.query_params.get('latitude'))
-        longitude = float(request.query_params.get('longitude'))
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except (TypeError, ValueError):
+            return Response({'error': 'Invalid latitude or longitude'}, status=status.HTTP_400_BAD_REQUEST)
+
         user_location = Point(longitude, latitude, srid=4326)
-        radius = int(request.query_params.get('radius', 10)) 
+
+        radius = int(request.query_params.get('radius', 10))
         nearby_products = Product.objects.filter(location__distance_lte=(user_location, Distance(km=radius)))
         serializer = ProductSerializer(nearby_products, many=True)
         return Response(serializer.data)
+    
+    
+    
+# views.py
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+# from .models import User
+from .utils import get_user_item_matrix, recommend_products
+
+@api_view(['GET'])
+def recommend_products_view(request):
+    if request.method == 'GET':
+        user = request.user
+        user_id = user.id
+        user_item_matrix = get_user_item_matrix()
+        recommended_product_ids = recommend_products(user_id, user_item_matrix)
+        recommended_products = Product.objects.filter(id__in=recommended_product_ids)
+        return Response({'recommended_products': recommended_products}, status=status.HTTP_200_OK)
